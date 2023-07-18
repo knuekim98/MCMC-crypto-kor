@@ -1,6 +1,8 @@
 import random
-from const import data_folder, book_name
+from const import data_folder, book_name, language
 from math import log, exp
+from jamo import h2j, j2hcj
+from hangul_utils import join_jamos
 
 
 with open(f'./{data_folder}/chain', 'r', encoding='UTF8') as f:
@@ -33,11 +35,19 @@ c1.sort()
 with open(f'./{data_folder}/{book_name}', 'r', encoding='UTF8') as f:
     book = f.read()
 
-book = book.replace('\n', '').lower()
-book = book.replace('à', 'a')
-book = book.replace('ä', 'a')
-book = book.replace('é', 'e')
-book = book.replace('ê', 'e')
+if language == 'eng':
+    book = book.replace('\n', '').lower()
+    book = book.replace('à', 'a')
+    book = book.replace('ä', 'a')
+    book = book.replace('é', 'e')
+    book = book.replace('ê', 'e')
+
+if language == 'kor':
+    book = book.replace('\u3000', ' ')
+    book = book.replace('―', '-')
+    book = book.replace('\n', '')
+    for _ in range(10): book = book.replace('  ', ' ')
+    book = j2hcj(h2j(book))
 
 x = list(set(book))
 x.sort()
@@ -86,4 +96,9 @@ print(df)
 print(pos)
 print(jump)
 
-print(get_dec(df))
+if language == 'kor': result = join_jamos(get_dec(df))
+else: result = get_dec(df)
+
+print(result)
+with open(f'./{data_folder}/deciphertext', 'w', encoding='UTF8') as f:
+    f.write(result)
